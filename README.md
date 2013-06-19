@@ -1,4 +1,5 @@
-opensearchserver-perl-client
+Opensearchserver-PERL-client
 ============================
 
 Official OpenSearchServer Perl client
+
