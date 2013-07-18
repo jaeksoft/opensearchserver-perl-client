@@ -20,6 +20,7 @@
 #  along with OpenSearchServer PERL Client.  If not, see <http://www.gnu.org/licenses/>.
 # 
 
+use Data::Dumper;
 use OpenSearchServer;
 
 # The URL to your OpenSearchServer instance: http://localhost:8080
@@ -46,5 +47,34 @@ $start = 0;
 # The number of rows
 $rows = 10;
 
-print search($oss_url, $oss_login, $oss_key, $oss_index, $template, $keywords, $start, $rows);
+my $result = search($oss_url, $oss_login, $oss_key, $oss_index, $template, $keywords, $start, $rows);
+
+#Get the number of document found
+my $found = search_num_found($result);
+my $highest_score = search_max_score($result);
+print 'NUM FOUND: '.$found.' - Highest score: '.$highest_score."\n";
+
+#Get the number of documents returned
+my $doc_returned = search_documents_returned($result);
+print 'DOCUMENTS RETURNED: '.$doc_returned."\n";
+
+# Loop over the returned document
+for (my $i = 0; $i < $doc_returned; $i++) {
+	# Get the field 
+	my $id = search_document_field($result, $i, 'product_id');
+	my $name = search_document_snippet($result, $i, 'name');
+	my $score = search_document_score($result, $i);
+	print 'Document #'.$i.' - id: '.$id.' - name: '.$name.' - score: '.$score."\n";
+}
+
+# Retrieve the number of terms for a facet
+my $facet_number = search_get_facet_number($result, 'parution_date_year');
+print 'FACET NUMBER for parution_date_year: '.$facet_number."\n";
+
+# Loo over the facet to retrieve the terms and count
+for (my $i = 0; $i < $facet_number; $i++) {
+	my $term = search_get_facet_term($result, 'parution_date_year', $i);
+	my $count = search_get_facet_count($result, 'parution_date_year', $i);
+	print 'Facet '.$term.': '.$count."\n";
+}
 
