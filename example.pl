@@ -47,7 +47,16 @@ $start = 0;
 # The number of rows
 $rows = 10;
 
-my $result = search($oss_url, $oss_login, $oss_key, $oss_index, $template, $keywords, $start, $rows);
+# The Lang of the keywords
+$lang = 'ENGLISH';
+
+# An array defining the sort order (optional)
+@sort = ('-score', '+lang');
+
+# An array of sub query filters
+@filter = ('name:book');
+
+my $result = search($oss_url, $oss_login, $oss_key, $oss_index, $template, $keywords, $start, $rows, $lang, \@sort, \@filter);
 
 #Get the number of document found
 my $found = search_num_found($result);

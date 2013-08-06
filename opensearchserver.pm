@@ -54,6 +54,8 @@ sub search {
 	my $start = shift;
 	my $rows = shift;
 	my $lang = shift;
+	my $sort = shift;
+	my $filter = shift;
 
 	if (not defined $server) {
 		warn 'The server URL is required';
@@ -84,6 +86,16 @@ sub search {
 	}
 	if (defined $lang) {
 		$request.='lang='.uri_escape($lang).'&';
+	}
+	if (defined $sort) {
+		for my $s (@$sort) {
+			$request.='sort='.uri_escape($s).'&';
+ 		}
+	}
+	if (defined $filter) {
+		for my $f (@$filter) {
+			$request.='filter='.uri_escape($f).'&';
+ 		}
 	}
 		
     my $client = REST::Client->new();
