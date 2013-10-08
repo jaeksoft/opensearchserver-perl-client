@@ -22,7 +22,7 @@ package OpenSearchServer;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.10';
 
 use base 'Exporter';
 
@@ -65,27 +65,31 @@ sub search {
 		warn 'The index name is required';
 		return;
 	}	
-	my $request = $server.'/services/rest/select/search/'.uri_escape($index).'/json?';
+	my $request = $server.'/services/rest/index/'.uri_escape($index).'/search/pattern';
+	if (defined $template) {
+		$request.='/'.uri_escape($template);
+	}
+	$request .= '?';
 	if (defined $login) {
 		$request.='login='.uri_escape($login).'&';
 	}
 	if (defined $apikey) {
 		$request.='key='.uri_escape($apikey).'&';
 	}
-	if (defined $template) {
-		$request.='template='.uri_escape($template).'&';
-	}
+	
+	my %json_request;
+	
 	if (defined $query) {
-		$request.='query='.uri_escape($query).'&';
+		$json_request{'query'} = $query;
 	}
 	if (defined $start) {
-		$request.='start='.uri_escape($start).'&';
+		$json_request{'start'} = $start;
 	}
 	if (defined $rows) {
-		$request.='rows='.uri_escape($rows).'&';
+		$json_request{'rows'} = $rows;
 	}
 	if (defined $lang) {
-		$request.='lang='.uri_escape($lang).'&';
+		$json_request{'lang'} = $lang;
 	}
 	if (defined $sort) {
 		for my $s (@$sort) {
@@ -97,9 +101,11 @@ sub search {
 			$request.='filter='.uri_escape($f).'&';
  		}
 	}
-		
+	my $json_text = JSON::to_json(\%json_request);
+	print $json_text;
     my $client = REST::Client->new();
-    $client->GET($request);
+    $client->POST($request, $json_text, { "Content-type" => 'application/json'});
+
    	if ($client->responseCode() ne '200') {
 		warn 'Wrong HTTP response code: '.$client->responseCode();
 		return;
@@ -110,17 +116,17 @@ sub search {
 # Returns the number of document found
 sub search_num_found {
 	my $json = shift;
-	return $json->{'result'}->{'@numFound'};
+	return $json->{'numFound'};
 }
 
 sub search_max_score {
 	my $json = shift;
-	return $json->{'result'}->{'@maxScore'};
+	return $json->{'maxScore'};
 }
 
 sub search_documents_returned {
 	my $json = shift;
-	my $documents = $json->{'result'}->{'document'};
+	my $documents = $json->{'documents'};
 	return @$documents; 
 }
 
@@ -129,11 +135,11 @@ sub search_document_field {
 	my $json = shift;
 	my $pos = shift;
 	my $field_name = shift;
-	my $fields = $json->{'result'}->{'document'}->[$pos]->{'field'};
+	my $fields = $json->{'documents'}->[$pos]->{'fields'};
 	# Loop over fields
 	for my $field (@$fields) {
-		if ($field_name eq $field->{'name'}) {
-			return $field->{'value'};
+		if ($field_name eq $field->{'fieldName'}) {
+			return $field->{'values'}[0];
 		}
 	}
 }
@@ -143,11 +149,11 @@ sub search_document_snippet {
 	my $json = shift;
 	my $pos = shift;
 	my $field_name = shift;
-	my $snippets = $json->{'result'}->{'document'}->[$pos]->{'snippet'};
+	my $snippets = $json->{'documents'}->[$pos]->{'snippets'};
 	# Loop over snippets
 	for my $snippet (@$snippets) {
-		if ($field_name eq $snippet->{'name'}) {
-			return $snippet->{'value'};
+		if ($field_name eq $snippet->{'fieldName'}) {
+			return $snippet->{'values'}[0];
 		}
 	}
 }
@@ -156,7 +162,7 @@ sub search_document_snippet {
 sub search_document_score {
 	my $json = shift;
 	my $pos = shift;
-	return $json->{'result'}->{'document'}->[$pos]->{'@score'};
+	return $json->{'documents'}->[$pos]->{'score'};
 }
 
 
