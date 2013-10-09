@@ -22,6 +22,8 @@ package OpenSearchServer;
 use strict;
 use warnings;
 
+use feature "switch";
+
 our $VERSION = '1.10';
 
 use base 'Exporter';
@@ -91,18 +93,44 @@ sub search {
 	if (defined $lang) {
 		$json_request{'lang'} = $lang;
 	}
+	
+	#Build the sorting sub structure
 	if (defined $sort) {
+		my @sort_array;
 		for my $s (@$sort) {
-			$request.='sort='.uri_escape($s).'&';
+			my %sort_item;
+			for (substr($s, 0, 1)) {
+				when ('+') {
+					$sort_item{'direction'} = 'ASC';
+					$sort_item{'field'} = substr($s, 1);
+				}
+				when ('-') {
+					$sort_item{'direction'} = 'DESC';
+					$sort_item{'field'} = substr($s, 1);
+				}
+				default {
+					$sort_item{'direction'} = 'ASC';
+					$sort_item{'field'} = $s;
+				}
+			}
+			push(@sort_array, \%sort_item);
  		}
+ 		$json_request{'sorts'} = \@sort_array;
 	}
+	
+	#Build the filtering sub structure
 	if (defined $filter) {
+		my @filter_array;
 		for my $f (@$filter) {
-			$request.='filter='.uri_escape($f).'&';
+			my %filter_item;
+			$filter_item{'type'} = 'QueryFilter';
+			$filter_item{'query'} = $f;
+			push(@filter_array, \%filter_item);
  		}
+ 		$json_request{'filters'} = \@filter_array;
 	}
+	
 	my $json_text = JSON::to_json(\%json_request);
-	print $json_text;
     my $client = REST::Client->new();
     $client->POST($request, $json_text, { "Content-type" => 'application/json'});
 
@@ -170,7 +198,7 @@ sub search_document_score {
 sub search_get_facet {
 	my $json = shift;
 	my $field_name = shift;
-	my $facets = $json->{'result'}->{'facet'};
+	my $facets = $json->{'facets'};
 	for my $facet (@$facets) {
 		if ($field_name eq $facet->{'fieldName'}) {
 			return $facet;
