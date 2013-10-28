@@ -159,6 +159,7 @@ sub search_documents_returned {
 	return @$documents; 
 }
 
+# Returns an array with the values, or undef if no value exists
 sub search_document_field_values {
 	my $json = shift;
 	my $pos = shift;
@@ -167,9 +168,15 @@ sub search_document_field_values {
 	# Loop over fields
 	for my $field (@$fields) {
 		if ($field_name eq $field->{'fieldName'}) {
-			return $field->{'values'};
+			my @result;
+			my $values = $field->{'values'};
+			for my $value (@$values) {
+				push(@result, $value);
+			}
+			return \@result;
 		}
 	}
+	return undef;
 }
 
 # Returns the named field of one document
@@ -177,13 +184,11 @@ sub search_document_field {
 	my $json = shift;
 	my $pos = shift;
 	my $field_name = shift;
-	my $fields = $json->{'documents'}->[$pos]->{'fields'};
-	# Loop over fields
-	for my $field (@$fields) {
-		if ($field_name eq $field->{'fieldName'}) {
-			return $field->{'values'}[0];
-		}
+	my $values = search_document_field_values($json, $pos, $field_name);
+	if ($values) {
+		$values->[0];
 	}
+	return undef;
 }
 
 # Returns the named snippet of one document
