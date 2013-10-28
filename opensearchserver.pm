@@ -39,6 +39,7 @@ our @EXPORT = qw(
 	search_get_facet_number
 	search_get_facet_term
 	search_get_facet_count
+	autocompletion_query
 );
 
 use REST::Client;
@@ -46,7 +47,37 @@ use JSON;
 use URI::Escape;
 use Data::Dumper;
 
-#
+# Check the server and index parameter
+sub check_server_index {
+	my $server = shift;
+	my $index = shift;
+	
+	if (not defined $server) {
+		warn 'The server URL is required';
+		return undef;
+	}	
+	if (not defined $index) {
+		warn 'The index name is required';
+		return undef;
+	}
+}
+
+# Add the optional login/apikey in the query string
+sub check_login_key {
+	my $request = shift;
+	my $login = shift;
+	my $apikey = shift;
+	$request .= '?';
+	if (defined $login) {
+		$request.='login='.uri_escape($login).'&';
+	}
+	if (defined $apikey) {
+		$request.='key='.uri_escape($apikey).'&';
+	}
+	return $request;
+}
+
+# Search request
 sub search {
 	my $server = shift;
 	my $login = shift;
@@ -60,25 +91,14 @@ sub search {
 	my $sort = shift;
 	my $filter = shift;
 
-	if (not defined $server) {
-		warn 'The server URL is required';
-		return;
-	}	
-	if (not defined $index) {
-		warn 'The index name is required';
+	if (not defined check_server_index($server, $index)) {
 		return;
 	}	
 	my $request = $server.'/services/rest/index/'.uri_escape($index).'/search/pattern';
 	if (defined $template) {
 		$request.='/'.uri_escape($template);
 	}
-	$request .= '?';
-	if (defined $login) {
-		$request.='login='.uri_escape($login).'&';
-	}
-	if (defined $apikey) {
-		$request.='key='.uri_escape($apikey).'&';
-	}
+	$request = check_login_key($request, $login, $apikey);
 	
 	my %json_request;
 	
@@ -259,6 +279,47 @@ sub search_get_facet_count {
 	my $field_name = shift;
 	my $pos = shift;
 	return $facet->{'terms'}->[$pos]->{'count'};
+}
+
+# Query an autocompletion item
+sub autocompletion_query {
+	my $server = shift;
+	my $login = shift;
+	my $apikey = shift;
+	my $index = shift;
+	my $autocompletion_name = shift;
+	my $prefix = shift;
+	my $rows = shift;
+
+	if (not defined check_server_index($server, $index)) {
+		return;
+	}	
+	
+	my $request = $server.'/services/rest/index/'.uri_escape($index).'/autocompletion/'.uri_escape($autocompletion_name);
+	$request = check_login_key($request, $login, $apikey);
+	
+	if (defined $prefix) {
+		$request.='prefix='.uri_escape($prefix).'&';
+	}
+	if (defined $rows) {
+		$request.='rows='.uri_escape($rows).'&';
+	}
+	
+	my $client = REST::Client->new();
+	
+    $client->GET($request);
+
+   	if ($client->responseCode() ne '200') {
+		warn 'Wrong HTTP response code: '.$client->responseCode();
+		return;
+	}
+	my @results;
+    my $json = JSON::decode_json($client->responseContent());
+    my $terms = $json->{'terms'};
+    for my $term (@$terms) {
+    	push(@results, $term);
+    }
+    return \@results;
 }
 
 1;

@@ -75,18 +75,23 @@ for (my $i = 0; $i < $doc_returned; $i++) {
 	my $score = search_document_score($result, $i);
 	my $parution_dates = search_document_field_values($result, $i, 'parution_date');
 	my $wrong_field = search_document_field($result, $i, 'wrong_field');
-	print 'Document #'.$i.' - id: '.$id.' - name: '.$name.' - score: '.$score."\n";
-	print '  Parution_date: '.Dumper($parution_dates)."\n";
+	print 'Document #'.$i.' - id: '.$id.' - name: '.$name.' - Date: '.$parution_dates->[0].' - score: '.$score."\n";
 }
 
 # Retrieve the number of terms for a facet
 my $facet_number = search_get_facet_number($result, 'parution_date_year');
 print 'FACET NUMBER for parution_date_year: '.$facet_number."\n";
 
-# Loo over the facet to retrieve the terms and count
+# Loop over the facet to retrieve the terms and count
 for (my $i = 0; $i < $facet_number; $i++) {
 	my $term = search_get_facet_term($result, 'parution_date_year', $i);
 	my $count = search_get_facet_count($result, 'parution_date_year', $i);
 	print 'Facet '.$term.': '.$count."\n";
 }
 
+# Test autocompletion
+print 'TEST AUTOCOMPLETION'."\n";
+my $terms =  autocompletion_query($oss_url, $oss_login, $oss_key, $oss_index, 'autocomplete', 'a', 5);
+for my $term (@$terms) {
+	print $term."\n";
+}
