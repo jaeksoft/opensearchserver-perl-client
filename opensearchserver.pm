@@ -33,6 +33,7 @@ our @EXPORT = qw(
 	search_max_score
 	search_documents_returned
 	search_document_field
+	search_document_field_values
 	search_document_snippet
 	search_document_score
 	search_get_facet_number
@@ -156,6 +157,19 @@ sub search_documents_returned {
 	my $json = shift;
 	my $documents = $json->{'documents'};
 	return @$documents; 
+}
+
+sub search_document_field_values {
+	my $json = shift;
+	my $pos = shift;
+	my $field_name = shift;
+	my $fields = $json->{'documents'}->[$pos]->{'fields'};
+	# Loop over fields
+	for my $field (@$fields) {
+		if ($field_name eq $field->{'fieldName'}) {
+			return $field->{'values'};
+		}
+	}
 }
 
 # Returns the named field of one document

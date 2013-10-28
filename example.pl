@@ -73,7 +73,9 @@ for (my $i = 0; $i < $doc_returned; $i++) {
 	my $id = search_document_field($result, $i, 'product_id');
 	my $name = search_document_snippet($result, $i, 'name');
 	my $score = search_document_score($result, $i);
+	my $parution_dates = search_document_field_values($result, $i, 'parution_date');
 	print 'Document #'.$i.' - id: '.$id.' - name: '.$name.' - score: '.$score."\n";
+	print '  Parution_date: '.Dumper($parution_dates)."\n";
 }
 
 # Retrieve the number of terms for a facet
