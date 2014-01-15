@@ -29,7 +29,10 @@ our $VERSION = '1.10';
 use base 'Exporter';
 
 our @EXPORT = qw( 
-	search search_num_found
+	search
+	search_pattern
+	search_field
+	search_num_found
 	search_max_score
 	search_documents_returned
 	search_document_field
@@ -90,11 +93,21 @@ sub search {
 	my $lang = shift;
 	my $sort = shift;
 	my $filter = shift;
-
+	my $type = shift;
+	
 	if (not defined check_server_index($server, $index)) {
 		return;
-	}	
-	my $request = $server.'/services/rest/index/'.uri_escape($index).'/search/pattern';
+	}
+	if (not defined $type) {
+		$type = 'pattern';
+	} else {
+		given ($type) {
+  			when ('pattern') { }
+  			when ('field') { }
+  			default { $type = 'pattern'; }
+  		}
+	}
+	my $request = $server.'/services/rest/index/'.uri_escape($index).'/search/'.$type;
 	if (defined $template) {
 		$request.='/'.uri_escape($template);
 	}
@@ -162,6 +175,40 @@ sub search {
     return JSON::decode_json($client->responseContent());
 }
 
+# Wrapper to search pattern
+sub search_pattern {
+	my $server = shift;
+	my $login = shift;
+	my $apikey = shift;
+	my $index = shift;
+	my $template = shift;
+	my $query = shift;
+	my $start = shift;
+	my $rows = shift;
+	my $lang = shift;
+	my $sort = shift;
+	my $filter = shift;
+	my $type = shift;
+	return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'pattern');
+}
+
+# Wrapper to search field
+sub search_field {
+	my $server = shift;
+	my $login = shift;
+	my $apikey = shift;
+	my $index = shift;
+	my $template = shift;
+	my $query = shift;
+	my $start = shift;
+	my $rows = shift;
+	my $lang = shift;
+	my $sort = shift;
+	my $filter = shift;
+	my $type = shift;
+	return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'field');
+}
+	
 # Returns the number of document found
 sub search_num_found {
 	my $json = shift;
