@@ -48,13 +48,15 @@ $start = 0;
 $rows = 10;
 
 # The Lang of the keywords
-$lang = 'ENGLISH';
+$lang = 'FRENCH';
 
 # An array defining the sort order (optional)
 @sort = ('-score', '+lang');
 
 # An array of sub query filters
-@filter = ('name:book');
+@filter = ('author:bruno');
+
+print 'CALL: '.$oss_url."\n";
 
 my $result = search_pattern($oss_url, $oss_login, $oss_key, $oss_index, $template, $keywords, $start, $rows, $lang, \@sort, \@filter);
 
@@ -91,7 +93,7 @@ for (my $i = 0; $i < $facet_number; $i++) {
 
 # Test autocompletion
 print 'TEST AUTOCOMPLETION'."\n";
-my $terms =  autocompletion_query($oss_url, $oss_login, $oss_key, $oss_index, 'autocomplete', 'a', 5);
+my $terms =  autocompletion_query($oss_url, $oss_login, $oss_key, $oss_index, 'autocompletion', 'a', 5);
 for my $term (@$terms) {
 	print $term."\n";
 }
