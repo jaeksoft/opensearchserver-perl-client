@@ -28,25 +28,25 @@ our $VERSION = '1.13';
 
 use base 'Exporter';
 
-our @EXPORT = qw( 
-	search
-	search_pattern
-	search_field
-	search_num_found
-	search_max_score
-	search_documents_returned
-	search_document_field
-	search_document_field_values
-	search_document_snippet
-	search_document_score
-	search_get_facet_number
-	search_get_facet_term
-	search_get_facet_count
-	autocompletion_query
+our @EXPORT = qw(
+    search
+    search_pattern
+    search_field
+    search_num_found
+    search_max_score
+    search_documents_returned
+    search_document_field
+    search_document_field_values
+    search_document_snippet
+    search_document_score
+    search_get_facet_number
+    search_get_facet_term
+    search_get_facet_count
+    autocompletion_query
     morelikethis
-	morelikethis_docquery
-	morelikethis_liketext
-	spellcheck_query);
+    morelikethis_docquery
+    morelikethis_liketext
+    spellcheck_query);
 
 use REST::Client;
 use JSON;
@@ -185,36 +185,36 @@ sub search {
 
 # Wrapper to search pattern
 sub search_pattern {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $template = shift;
-	my $query = shift;
-	my $start = shift;
-	my $rows = shift;
-	my $lang = shift;
-	my $sort = shift;
-	my $filter = shift;
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $template = shift;
+    my $query = shift;
+    my $start = shift;
+    my $rows = shift;
+    my $lang = shift;
+    my $sort = shift;
+    my $filter = shift;
 
-	return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'pattern');
+    return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'pattern');
 }
 
 # Wrapper to search field
 sub search_field {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $template = shift;
-	my $query = shift;
-	my $start = shift;
-	my $rows = shift;
-	my $lang = shift;
-	my $sort = shift;
-	my $filter = shift;
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $template = shift;
+    my $query = shift;
+    my $start = shift;
+    my $rows = shift;
+    my $lang = shift;
+    my $sort = shift;
+    my $filter = shift;
 
-	return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'field');
+    return search($server, $login, $apikey, $index, $template, $query, $start, $rows, $lang, $sort, $filter, 'field');
 }
 
 # Returns the number of document found
@@ -229,9 +229,9 @@ sub search_max_score {
 }
 
 sub search_documents_returned {
-	my $json = shift;
-	my $documents = $json->{'documents'};
-	$documents = [] unless (defined $documents);
+    my $json = shift;
+    my $documents = $json->{'documents'};
+    $documents = [] unless (defined $documents);
     return @$documents;
 }
 
@@ -257,14 +257,14 @@ sub search_document_field_values {
 
 # Returns the named field of one document
 sub search_document_field {
-	my $json = shift;
-	my $pos = shift;
-	my $field_name = shift;
-	my $values = search_document_field_values($json, $pos, $field_name);
-	if ($values) {
-		return$values->[0];
-	}
-	return undef;
+    my $json = shift;
+    my $pos = shift;
+    my $field_name = shift;
+    my $values = search_document_field_values($json, $pos, $field_name);
+    if ($values) {
+        return$values->[0];
+    }
+    return undef;
 }
 
 # Returns the named snippet of one document
@@ -382,111 +382,112 @@ sub autocompletion_query {
 
 # Query an morelikethis item with template
 sub morelikethis {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $template = shift;
-	my $query = shift;
-	my $start = shift;
-	my $rows = shift;
-	my $type = shift;
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $template = shift;
+    my $query = shift;
+    my $start = shift;
+    my $rows = shift;
+    my $type = shift;
 
-	if (not defined check_server_index($server, $index)) {
-		return;
-	}
-	if (not defined $type) {
-		$type = 'likeText';
-	} else {
-		given ($type) {
-  			when ('likeText') { }
-  			when ('docQuery') { }
-  			default { $type = 'likeText'; }
-  		}
-	}
-	my $request = $server.'/services/rest/index/'.uri_escape($index).'/morelikethis/template/'.uri_escape($template);
-	$request = check_login_key($request, $login, $apikey);
+    if (not defined check_server_index($server, $index)) {
+        return;
+    }
+    if (not defined $type) {
+        $type = 'likeText';
+    }
+    else {
+        given ($type) {
+            when ('likeText') {}
+            when ('docQuery') {}
+            default {$type = 'likeText';}
+        }
+    }
+    my $request = $server . '/services/rest/index/' . uri_escape($index) . '/morelikethis/template/' . uri_escape($template);
+    $request = check_login_key($request, $login, $apikey);
 
-	my %json_request;
-	if (defined $query) {
-		$json_request{$type} = $query;
-	}
-	if (defined $start) {
-		$json_request{'start'} = $start;
-	}
-	if (defined $rows) {
-		$json_request{'rows'} = $rows;
-	}
+    my %json_request;
+    if (defined $query) {
+        $json_request{$type} = $query;
+    }
+    if (defined $start) {
+        $json_request{'start'} = $start;
+    }
+    if (defined $rows) {
+        $json_request{'rows'} = $rows;
+    }
 
-	my $json_text = JSON::to_json(\%json_request);
-	my $client = REST::Client->new();
-	$client->POST($request, $json_text, { "Content-type" => 'application/json'});
+    my $json_text = JSON::to_json(\%json_request);
+    my $client = REST::Client->new();
+    $client->POST($request, $json_text, { "Content-type" => 'application/json' });
 
-   	if ($client->responseCode() ne '200') {
-		warn 'Wrong HTTP response code: '.$client->responseCode();
-		return;
-	}
+    if ($client->responseCode() ne '200') {
+        warn 'Wrong HTTP response code: ' . $client->responseCode();
+        return;
+    }
     return JSON::decode_json($client->responseContent());
 }
 
 # Wrapper to morelikethis document Query
 sub morelikethis_docquery {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $template = shift;
-	my $query = shift;
-	my $start = shift;
-	my $rows = shift;
-	return morelikethis($server, $login, $apikey, $index, $template, $query, $start, $rows, 'docQuery');
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $template = shift;
+    my $query = shift;
+    my $start = shift;
+    my $rows = shift;
+    return morelikethis($server, $login, $apikey, $index, $template, $query, $start, $rows, 'docQuery');
 }
 
 # Wrapper to morelikethis like Text
 sub morelikethis_liketext {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $template = shift;
-	my $query = shift;
-	my $start = shift;
-	my $rows = shift;
-	return morelikethis($server, $login, $apikey, $index, $template, $query, $start, $rows, 'likeText');
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $template = shift;
+    my $query = shift;
+    my $start = shift;
+    my $rows = shift;
+    return morelikethis($server, $login, $apikey, $index, $template, $query, $start, $rows, 'likeText');
 }
 
 # Query an spellcheck suggestion
 sub spellcheck_query {
-	my $server = shift;
-	my $login = shift;
-	my $apikey = shift;
-	my $index = shift;
-	my $spellcheck_name = shift;
-	my $query = shift;
-	my $lang = shift;
+    my $server = shift;
+    my $login = shift;
+    my $apikey = shift;
+    my $index = shift;
+    my $spellcheck_name = shift;
+    my $query = shift;
+    my $lang = shift;
 
-	if (not defined check_server_index($server, $index)) {
-		return;
-	}
+    if (not defined check_server_index($server, $index)) {
+        return;
+    }
 
-	my $request = $server.'/services/rest/index/'.uri_escape($index).'/spellcheck/'.uri_escape($spellcheck_name);
-	$request = check_login_key($request, $login, $apikey);
+    my $request = $server . '/services/rest/index/' . uri_escape($index) . '/spellcheck/' . uri_escape($spellcheck_name);
+    $request = check_login_key($request, $login, $apikey);
 
-	if (defined $query) {
-		$request.='query='.uri_escape($query).'&';
-	}
-	if (defined $lang) {
-		$request.='lang='.uri_escape($lang).'&';
-	}
+    if (defined $query) {
+        $request .= 'query=' . uri_escape($query) . '&';
+    }
+    if (defined $lang) {
+        $request .= 'lang=' . uri_escape($lang) . '&';
+    }
 
-	my $client = REST::Client->new();
+    my $client = REST::Client->new();
 
     $client->GET($request);
 
-   	if ($client->responseCode() ne '200') {
-		warn 'Wrong HTTP response code: '.$client->responseCode();
-		return;
-	}
+    if ($client->responseCode() ne '200') {
+        warn 'Wrong HTTP response code: ' . $client->responseCode();
+        return;
+    }
     return JSON::decode_json($client->responseContent());
 }
 
