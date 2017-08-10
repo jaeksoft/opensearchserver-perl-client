@@ -24,7 +24,7 @@ use warnings;
 
 use feature "switch";
 
-our $VERSION = '1.13';
+our $VERSION = '1.14';
 
 use base 'Exporter';
 
@@ -177,7 +177,7 @@ sub search {
     $client->POST($request, $json_text);
 
     if ($client->responseCode() ne '200') {
-        warn 'Wrong HTTP response code: ' . $client->responseCode() . $client->responseContent();
+        warn 'Wrong HTTP response code: ' . $client->responseCode() . ' ' . $client->responseContent();
         return;
     }
     return JSON::decode_json($client->responseContent());
@@ -368,7 +368,7 @@ sub autocompletion_query {
     $client->GET($request);
 
     if ($client->responseCode() ne '200') {
-        warn 'Wrong HTTP response code: ' . $client->responseCode();
+        warn 'Wrong HTTP response code: ' . $client->responseCode() . ' ' . $client->responseContent();
         return;
     }
     my @results;
@@ -422,9 +422,8 @@ sub morelikethis {
     my $json_text = JSON::to_json(\%json_request);
     my $client = REST::Client->new();
     $client->POST($request, $json_text, { "Content-type" => 'application/json' });
-
     if ($client->responseCode() ne '200') {
-        warn 'Wrong HTTP response code: ' . $client->responseCode();
+        warn 'Wrong HTTP response code: ' . $client->responseCode() . ' ' . $client->responseContent();
         return;
     }
     return JSON::decode_json($client->responseContent());
@@ -485,7 +484,7 @@ sub spellcheck_query {
     $client->GET($request);
 
     if ($client->responseCode() ne '200') {
-        warn 'Wrong HTTP response code: ' . $client->responseCode();
+        warn 'Wrong HTTP response code: ' . $client->responseCode() . ' ' . $client->responseContent();
         return;
     }
     return JSON::decode_json($client->responseContent());

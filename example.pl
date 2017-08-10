@@ -97,3 +97,25 @@ my $terms =  autocompletion_query($oss_url, $oss_login, $oss_key, $oss_index, 'a
 for my $term (@$terms) {
 	print $term."\n";
 }
+
+# Test moreLikeThis
+print 'TEST MORE LIKE THIS'."\n";
+$result = morelikethis_liketext($oss_url, $oss_login, $oss_key, $oss_index, 'morelikethis','test', 0, 5);
+
+#Get the number of documents returned
+$doc_returned = search_documents_returned($result);
+print 'DOCUMENTS RETURNED: '.$doc_returned."\n";
+
+# Loop over the returned document
+for (my $i = 0; $i < $doc_returned; $i++) {
+	# Get the field
+	my $id = search_document_field($result, $i, 'product_id');
+	my $title = search_document_field($result, $i, 'title');
+	my $score = search_document_score($result, $i);
+	print 'Document #'.$i.' - id: '.$id.' - title: '.$title.' - score: '.$score."\n";
+}
+
+# Test spellCheckQuery
+print 'TEST SPELLCHECK QUERY'."\n";
+$result = spellcheck_query($oss_url, $oss_login, $oss_key, $oss_index, 'spellcheck', 'tweest', 'fr');
+print Dumper($result);
