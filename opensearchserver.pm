@@ -1,8 +1,8 @@
 #  This file is part of OpenSearchServer PERL Client.
 #
-#  Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+#  Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
 #
-#  http://www.open-search-server.com
+#  http://www.opensearchserver.com
 #
 #  OpenSearchServer PERL Client is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published by

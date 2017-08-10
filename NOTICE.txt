@@ -1,6 +1,6 @@
 OpenSearchServer PERL Client
-Copyright 2013 Emmanuel Keller / Jaeksoft
-http://www.open-search-server.com
+Copyright 2013-2017 Emmanuel Keller / Jaeksoft
+http://www.opensearchserver.com
 
 OpenSearchServer PERL Client is free software: you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License as published by
