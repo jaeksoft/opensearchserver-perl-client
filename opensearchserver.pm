@@ -362,9 +362,6 @@ sub autocompletion_query {
     }
 
     my $client = REST::Client->new();
-
-    print 'REQUEST: ' . $request . "\n";
-
     $client->GET($request);
 
     if ($client->responseCode() ne '200') {
